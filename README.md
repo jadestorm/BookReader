@@ -14,6 +14,15 @@ files constituting an item.
 See demo of the [embedded version] or use in [fullscreen mode].
 
 
+Changes From Core/Upstream
+-------------------------------
+This version of the module adds a special item type "Electronic Booklet"
+that automatically adds the embedded viewer to the bottom of the item
+show pages.
+
+All it really expects is a set of image files in an Item.
+
+
 Installation
 ------------
 
