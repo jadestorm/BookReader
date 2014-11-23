@@ -360,12 +360,12 @@ class BookReaderPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookPublicItemsShow($args)
     {
-	if ($args[item]->Type->name == "Electronic Booklet") {
+	if ($args['item']->Type->name == "Electronic Booklet") {
 		echo "<div>\n";
 		echo "<h3>Booklet</h3>\n";
 		fire_plugin_hook('book_reader_item_show', array(
-			'view' => $args[view],
-			'item' => $args[item],
+			'view' => $args['view'],
+			'item' => $args['item'],
 			'page' => '0',
 			'embed_functions' => false,
 			'mode_page' => 2,
