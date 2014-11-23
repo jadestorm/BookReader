@@ -34,6 +34,7 @@ class BookReaderPlugin extends Omeka_Plugin_AbstractPlugin
         'admin_items_batch_edit_form',
         'items_batch_edit_custom',
         'book_reader_item_show',
+	'public_items_show',
     );
 
     /**
@@ -68,6 +69,44 @@ class BookReaderPlugin extends Omeka_Plugin_AbstractPlugin
         $this->_options['bookreader_custom_library'] = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $this->_options['bookreader_custom_library'];
 
         $this->_installOptions();
+
+	$this->_itemTypeInstall();
+    }
+
+    public function _itemTypeInstall()
+    {
+	$itemTypeMeta = array(
+		  'name'=> 'Electronic Booklet',
+		  'description' => 'A collection of images that form a booklet, to be displayed in the Internet Archive Book Reader.',
+	);
+					
+	$elements = array(
+	); 		
+		
+	// Sort out which elements already exist
+	$add_elements=array();
+		
+	foreach($elements as $element){
+		if(!element_exists('Item Type Metadata',$element['name'])){
+			// add the new elements
+			$add_elements[]=$element;
+		}else{
+			// add the existing Element objects
+			$ElementObj=get_record('Element',array(
+				'elementSet'=>'Item Type Metadata',
+				'name'=>$element['name']));
+				
+			$add_elements[]=$ElementObj;
+		}
+	}
+		
+	$the_itemType=get_record('ItemType',array('name'=>$itemTypeMeta['name']));
+		
+	if(!$the_itemType){
+		insert_item_type($itemTypeMeta,$add_elements);
+	}else{
+		$the_itemType->addElements($add_elements);
+	}
     }
 
     /**
@@ -83,6 +122,10 @@ class BookReaderPlugin extends Omeka_Plugin_AbstractPlugin
             delete_option('bookreader_logo_url');
             delete_option('bookreader_toolbar_color');
         }
+
+        if (version_compare($oldVersion, '2.4', '<=')) {
+	    $this->_itemTypeInstall();
+	}
     }
 
     /**
@@ -314,4 +357,20 @@ class BookReaderPlugin extends Omeka_Plugin_AbstractPlugin
         $html = '<div><iframe src="' . $url . '"' . $class . $width . $height . ' frameborder="0"></iframe></div>';
         echo $html;
     }
+
+    public function hookPublicItemsShow($args)
+    {
+	if ($args[item]->Type->name == "Electronic Booklet") {
+		echo "<div>\n";
+		echo "<h3>Booklet</h3>\n";
+		fire_plugin_hook('book_reader_item_show', array(
+			'view' => $args[view],
+			'item' => $args[item],
+			'page' => '0',
+			'embed_functions' => false,
+			'mode_page' => 2,
+		));
+		echo "</div>\n";
+	}
+    }  
 }
